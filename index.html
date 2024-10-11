@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="favcoin.png" />
+    <title>PRIME DEALS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #ff6b6b, #f7c3c4, #ffab40, #fffb69);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 3em;
+            color: #333;
+            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+        label, input, select {
+            font-size: 1.2em;
+            margin: 10px 0;
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ffab40;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+            outline: none;
+        }
+        .submit-btn {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1.2em;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .submit-btn:hover {
+            background-color: #ff5a5a;
+            transform: translateY(-2px);
+        }
+        .qrcode {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>PRIME DEALS</h1>
+        <form id="ottForm">
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Your Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="plan">Choose a Plan:</label>
+            <select id="plan" name="plan" required>
+                <option value="">-- Select Plan --</option>
+                <option value="Basic">Basic - $5</option>
+                <option value="Premium">Premium - $10</option>
+                <option value="Ultimate">Ultimate - $15</option>
+            </select>
+
+            <label for="amount">Amount to Pay:</label>
+            <input type="text" id="amount" name="amount" readonly>
+
+            <h3>Scan to Pay</h3>
+            <div class="qrcode">
+                <img src="phonepay.jpg" alt="Payment QR Code" width="200">
+            </div>
+
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+
+    <!-- Include EmailJS script -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        // Initialize EmailJS
+        (function(){
+            emailjs.init("lVEdOKIhaN5C_hktq");
+        })();
+
+        // Form submit event
+        document.getElementById('ottForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Collect form data
+            let name = document.getElementById('name').value;
+            let email = document.getElementById('email').value;
+            let plan = document.getElementById('plan').value;
+            let amount = document.getElementById('amount').value;
+
+            // Validate form
+            if (!name || !email || !plan || !amount) {
+                alert("Please fill out all the fields!");
+                return;
+            }
+
+            // Send the email using EmailJS
+            emailjs.send("service_4z53bkp", "template_sup9h9n", {
+                name: name,
+                email: email,
+                plan: plan,
+                amount: amount
+            })
+            .then(function(response) {
+                alert("Email sent successfully!");
+            }, function(error) {
+                alert("Failed to send email: " + error.text);
+            });
+        });
+
+        // Update amount based on the selected plan
+        document.getElementById('plan').addEventListener('change', function() {
+            let selectedPlan = this.value;
+            let amountField = document.getElementById('amount');
+
+            if (selectedPlan === "Basic") {
+                amountField.value = "$5";
+            } else if (selectedPlan === "Premium") {
+                amountField.value = "$10";
+            } else if (selectedPlan === "Ultimate") {
+                amountField.value = "$15";
+            } else {
+                amountField.value = "";
+            }
+        });
+    </script>
+</body>
+</html>
