@@ -8,31 +8,53 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fad0c4);
+            background-image: url('PRIME DEALS.png'); /* Replace with your background image */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+            text-align: center;
         }
 
         h1 {
             text-align: center;
-            font-size: 3rem;
-            color: #333;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            font-size: 2.5rem;
+            color: #fb5607;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
             font-weight: bold;
         }
 
         label {
             font-size: 1.2rem;
-            color: #444;
+            color: #333;
         }
 
         input, select {
@@ -64,16 +86,30 @@
             transform: scale(1.05);
         }
 
-        .input-file {
-            border: 1px dashed #ccc;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
+        .qrcode img {
+            display: block;
+            margin: 20px auto;
+            width: 200px;
         }
 
-        .input-file:hover {
-            border-color: #888;
+        .thank-you-message {
+            display: none;
+            color: #8338ec;
+            font-size: 1.5rem;
+            background-color: #caf0f8(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -97,33 +133,41 @@
             <label for="amount">Amount to Pay</label>
             <input type="text" id="amount" name="amount" required readonly>
 
-            <label for="paymentProof">Upload Payment Screenshot</label>
-            <input type="file" id="paymentProof" name="paymentProof" class="input-file" accept="image/*" required>
+            <label for="bankingName">Banking Name</label>
+            <input type="text" id="bankingName" name="bankingName" required>
+
             <h3>Scan to Pay</h3>
             <div class="qrcode">
-                <img src="phonepay.jpg" alt="Payment QR Code" width="200">
+                <img src="phonepay.jpg" alt="Payment QR Code">
             </div>
 
             <button type="submit">Submit</button>
         </form>
+
+        <div class="thank-you-message" id="thankYouMessage">
+            <p><strong>Thank you for choosing Prime Deals!</strong></p>
+            <p>We will verify your payment, and you will receive your account details within 5 minutes to your registered email address.</p>
+        </div>
     </div>
 
+    <!-- EmailJS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <script type="text/javascript">
         (function() {
-            emailjs.init("lVEdOKIhaN5C_hktq");
+            emailjs.init("lVEdOKIhaN5C_hktq"); // Initialize EmailJS with your User ID
         })();
 
         document.getElementById('ottForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent form submission
+            event.preventDefault();
 
             let name = document.getElementById('name').value;
             let email = document.getElementById('email').value;
             let plan = document.getElementById('plan').value;
+            let bankingName = document.getElementById('bankingName').value;
             let amount = document.getElementById('amount');
-            let paymentProof = document.getElementById('paymentProof').files[0];
 
-            // Set amount based on plan selected
+            // Set amount based on the selected plan
             if (plan === "Basic Plan") {
                 amount.value = "$5";
             } else if (plan === "Standard Plan") {
@@ -132,39 +176,21 @@
                 amount.value = "$15";
             }
 
-            if (!paymentProof) {
-                alert("Please upload a payment screenshot!");
-                return;
-            }
-
-            // Convert the image to base64
-            getBase64(paymentProof, function(base64PaymentProof) {
-                // Send the email using EmailJS
-                emailjs.send("service_4z53bkp", "template_sup9h9n", {
-                    name: name,
-                    email: email,
-                    plan: plan,
-                    amount: amount.value,
-                    paymentProof: base64PaymentProof
-                })
-                .then(function(response) {
-                    alert("Email sent successfully!");
-                }, function(error) {
-                    alert("Failed to send email: " + error.text);
-                });
+            // Send email using EmailJS
+            emailjs.send("service_4z53bkp", "template_sup9h9n", {
+                name: name,
+                email: email,
+                plan: plan,
+                amount: amount.value,
+                bankingName: bankingName
+            }).then(function(response) {
+                // Hide the form and display the thank you message
+                document.getElementById('ottForm').style.display = 'none';
+                document.getElementById('thankYouMessage').style.display = 'block';
+            }, function(error) {
+                alert("Failed to send email: " + error.text);
             });
         });
-
-        function getBase64(file, callback) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                callback(reader.result.split(",")[1]); // Strip off the base64 header (data:image/*)
-            };
-            reader.onerror = function(error) {
-                console.log("Error: ", error);
-            };
-            reader.readAsDataURL(file);
-        }
     </script>
 </body>
 </html>
